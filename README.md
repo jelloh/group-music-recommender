@@ -7,7 +7,7 @@ Term project for ITIS 6410/8410
 3. run `pipenv install` (this should install all the required libraries)  
 4. run `pipenv shell` to go into the newly created environment  
   
-## Getting a YouTube API Key 
+### Getting a YouTube API Key 
 1. Go to [console.developers.google.com](https://console.cloud.google.com/projectselector2/apis/dashboard?pli=1&supportedpurview=project)  
 2. Click **Create Project**
 3. Choose a name for your project and click **Create**
