@@ -7,6 +7,7 @@ name = "pypi"
 jupyter = "*"
 requests = "*"
 pyyaml = "*"
+google-api-python-client = "*"
 
 [dev-packages]
 
