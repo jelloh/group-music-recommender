@@ -19,3 +19,4 @@ Term project for ITIS 6410/8410
 9. Save the API key given!
 
 *For our group project, we will keep a single API key saved in a text file locally. **This key will not be pushed to the repository***  
+File will be named "YouTube API Key.txt" and stored in just the main repository.
