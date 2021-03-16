@@ -8,6 +8,11 @@ jupyter = "*"
 requests = "*"
 pyyaml = "*"
 google-api-python-client = "*"
+pymongo = "*"
+dnspython = "*"
+flask = "*"
+flask-pymongo = "*"
+bcrypt = "*"
 
 [dev-packages]
 
