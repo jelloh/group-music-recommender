@@ -22,8 +22,6 @@ class User:
 
         self.ratings.append(r)
 
-
-
     def __eq__(self, other):
         return self._id == other._id
 
