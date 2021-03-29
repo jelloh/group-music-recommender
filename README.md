@@ -22,7 +22,7 @@ File will be named "YouTube API Key.txt" and stored in just the main repository.
   
 ### Setup MongoDB  
 1. Install [MongoDB Compass](https://www.mongodb.com/products/compass)  
-2. Navigate to our project's cluster and click "Connect"
+2. Navigate to our project's cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/lp/try2?utm_source=bing&utm_campaign=bs_americas_united_states_search_brand_atlas_desktop&utm_term=mongodb%20atlas&utm_medium=cpc_paid_search&utm_ad=e&utm_ad_campaign_id=355813668&msclkid=265f839c6b3716819913e3fe4281332f) after signing in and click "Connect"
 3. Click "Connect using MongoDB Compass" and copy the connection string
 4. Within MongoDB Compass, click "New Connection" and paste the connection string
 5. Replace "password" in the string with our actual password and click connect
