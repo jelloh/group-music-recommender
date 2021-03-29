@@ -26,4 +26,13 @@ File will be named "YouTube API Key.txt" and stored in just the main repository.
 3. Click "Connect using MongoDB Compass" and copy the connection string
 4. Within MongoDB Compass, click "New Connection" and paste the connection string
 5. Replace "password" in the string with our actual password and click connect
+ 
+## Backend  
+To run the backend, create a text file in the main repository named "MongoDB Password.txt" and paste our MongoDB Atlas cluster password there.  
+Then run:  
+```
+cd backend 
+python apis.py
+```  
 
+It should now be running! (Make sure you are also in your environment when you do this. If not, run `pipenv shell` first)
