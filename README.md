@@ -18,5 +18,21 @@ Term project for ITIS 6410/8410
 8. Select the API we will be running (YouTube), and that we are running the API from "Other non-UI" (since we are using Python scripts). We will also select that we will be accessing "Public data" (for now at least).
 9. Save the API key given!
 
-*For our group project, we will keep a single API key saved in a text file locally. **This key will not be pushed to the repository***  
 File will be named "YouTube API Key.txt" and stored in just the main repository.
+  
+### Setup MongoDB  
+1. Install [MongoDB Compass](https://www.mongodb.com/products/compass)  
+2. Navigate to our project's cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/lp/try2?utm_source=bing&utm_campaign=bs_americas_united_states_search_brand_atlas_desktop&utm_term=mongodb%20atlas&utm_medium=cpc_paid_search&utm_ad=e&utm_ad_campaign_id=355813668&msclkid=265f839c6b3716819913e3fe4281332f) after signing in and click "Connect"
+3. Click "Connect using MongoDB Compass" and copy the connection string
+4. Within MongoDB Compass, click "New Connection" and paste the connection string
+5. Replace "password" in the string with our actual password and click connect
+ 
+## Backend  
+To run the backend, create a text file in the main repository named "MongoDB Password.txt" and paste our MongoDB Atlas cluster password there.  
+Then run:  
+```
+cd backend 
+python apis.py
+```  
+
+It should now be running! (Make sure you are also in your environment when you do this. If not, run `pipenv shell` first)
