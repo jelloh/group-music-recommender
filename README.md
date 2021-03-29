@@ -19,3 +19,11 @@ Term project for ITIS 6410/8410
 9. Save the API key given!
 
 File will be named "YouTube API Key.txt" and stored in just the main repository.
+  
+### Setup MongoDB  
+1. Install [MongoDB Compass](https://www.mongodb.com/products/compass)  
+2. Navigate to our project's cluster and click "Connect"
+3. Click "Connect using MongoDB Compass" and copy the connection string
+4. Within MongoDB Compass, click "New Connection" and paste the connection string
+5. Replace "password" in the string with our actual password and click connect
+
