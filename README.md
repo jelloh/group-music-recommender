@@ -18,5 +18,4 @@ Term project for ITIS 6410/8410
 8. Select the API we will be running (YouTube), and that we are running the API from "Other non-UI" (since we are using Python scripts). We will also select that we will be accessing "Public data" (for now at least).
 9. Save the API key given!
 
-*For our group project, we will keep a single API key saved in a text file locally. **This key will not be pushed to the repository***  
 File will be named "YouTube API Key.txt" and stored in just the main repository.
