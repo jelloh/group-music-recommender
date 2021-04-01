@@ -58,10 +58,10 @@ def create_user():
 
 # Reference:
 # https://api.mongodb.com/python/2.9/api/pymongo/collection.html#pymongo.collection.Collection.find_one_and_update
-@app.route("/ratings/<id>", methods = ["PATCH"])
-def rate_video(id):
+@app.route("/ratings/add/<user_id>", methods = ["PATCH"])
+def rate_video(user_id):
     """
-    id - enter the user's id who is rating a video
+    user_id - enter the user's id who is rating a video
 
     @TODO
     We have this set BUT...
@@ -80,21 +80,47 @@ def rate_video(id):
         #rating = Rating(video_id, rating)
         new_rating = {
             "_id": video_id,
-            "rating": rating
+            "rating": int(rating)
         }
 
-        dbResponse = db.ratings.update(
-            {"_id": id},
-            {'$addToSet' : {'ratings': new_rating}}
-        )
+        # @TODO if user doesn't exist yet, add them
 
-        return Response(
-            response = json.dumps(
-                {"message": "New rating added."}
-            ),
-            status = 200,
-            mimetype = "application/json"
-        )
+
+        # check if current rating already exists @TODO make sure to properly test this
+        video_exists = db.ratings.find(
+                {"$and":
+                [{"_id":user_id},
+                {"ratings._id": video_id}]}
+            ).count() > 0
+
+        # if not, add the new video and rating
+        if(video_exists == False):
+            dbResponse = db.ratings.update(
+                {"_id": user_id},
+                {'$addToSet' : {'ratings': new_rating}}
+            )
+
+            return Response(
+                response = json.dumps(
+                    {"message": "New rating added."}
+                ),
+                status = 200,
+                mimetype = "application/json"
+            )
+
+        # if it does, simply update the rating
+        else:
+            # @TODO update the value instead of just not doing anything
+
+
+
+            return Response(
+                response = json.dumps(
+                    {"message": "Video already exists. No rating added."}
+                ),
+                status = 200,
+                mimetype = "application/json"
+            )
 
     except Exception as ex:
         print(ex)
