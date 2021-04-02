@@ -30,17 +30,14 @@ except:
 ## User and Rating APIS
 ## ===============================================================================
 
-@app.route("/ratings", methods = ["POST"])
-def create_user():
-    try:
-        # create a new user based on the inputted id
-        user_id = request.form["discord_id"]
-        #user = User(user_id)
-        user = {
-            "_id": request.form["discord_id"],
-            "ratings": []
-        }
+def add_user(user_id):
+    #user = User(user_id)
+    user = {
+        "_id": user_id,
+        "ratings": []
+    }
 
+    try:
         dbResponse = db.ratings.insert_one(user)
 
         return Response(
@@ -54,11 +51,28 @@ def create_user():
         )
 
     except Exception as ex:
+        return Response(
+            response = json.dumps(
+                {"message": "User already exists."}
+            ),
+            status = 500,
+            mimetype = "application/json"
+        )
+
+@app.route("/ratings/add_user", methods = ["POST"])
+def create_user_api():
+   
+    # create a new user based on the inputted id
+    user_id = request.form["discord_id"]
+        
+    try:
+        return add_user(user_id)
+    except Exception as ex:
         print(ex)
 
 # Reference:
 # https://api.mongodb.com/python/2.9/api/pymongo/collection.html#pymongo.collection.Collection.find_one_and_update
-@app.route("/ratings/add/<user_id>", methods = ["PATCH"])
+@app.route("/ratings/add_rating/<user_id>", methods = ["PATCH"])
 def rate_video(user_id):
     """
     user_id - enter the user's id who is rating a video
@@ -76,6 +90,11 @@ def rate_video(user_id):
         video_id = request.form["video_id"]
         rating = request.form["rating"]
 
+        # check that rating is either 1 or -1 @TODO
+
+
+
+
         # create rating 
         #rating = Rating(video_id, rating)
         new_rating = {
@@ -83,8 +102,9 @@ def rate_video(user_id):
             "rating": int(rating)
         }
 
-        # @TODO if user doesn't exist yet, add them
-
+        # if user doesn't exist yet, add them
+        if(db.ratings.find({"_id" : user_id}).count() < 1):
+            add_user(user_id)
 
         # check if current rating already exists @TODO make sure to properly test this
         video_exists = db.ratings.find(
@@ -110,13 +130,15 @@ def rate_video(user_id):
 
         # if it does, simply update the rating
         else:
-            # @TODO update the value instead of just not doing anything
-
-
+            # update the value instead of just not doing anything
+            dbResponse = db.ratings.find_and_modify(
+                query = {"_id": user_id, 'ratings._id' : video_id},
+                update = {"$set": {"ratings.$.rating" : int(rating)}}
+            )
 
             return Response(
                 response = json.dumps(
-                    {"message": "Video already exists. No rating added."}
+                    {"message": "Video already exists. Rating updated."}
                 ),
                 status = 200,
                 mimetype = "application/json"
