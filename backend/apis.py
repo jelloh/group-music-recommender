@@ -90,10 +90,9 @@ def rate_video(user_id):
         video_id = request.form["video_id"]
         rating = request.form["rating"]
 
-        # check that rating is either 1 or -1 @TODO
-
-
-
+        # check that rating is either 1 or -1
+        if(rating == LIKE or rating == DISLIKE) == False:
+            raise Exception("Rating must be either 1 (for like) or -1 (for dislike)")
 
         # create rating 
         #rating = Rating(video_id, rating)
@@ -145,9 +144,13 @@ def rate_video(user_id):
             )
 
     except Exception as ex:
-        print(ex)
-
-
+        return Response(
+                response = json.dumps(
+                    {"message": str(ex)}
+                ),
+                status = 500,
+                mimetype = "application/json"
+            )
 
 ## ===============================================================================
 ## beep boop
