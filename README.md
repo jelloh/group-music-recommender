@@ -1,6 +1,8 @@
 # group-music-recommender
 Term project for ITIS 6410/8410
 
+# Backend 
+
 ## Setup  
 1. git clone this repository  
 2. install pipenv from [here](https://pipenv.pypa.io/en/latest/) if you don't already have it  
@@ -27,7 +29,7 @@ File will be named "YouTube API Key.txt" and stored in just the main repository.
 4. Within MongoDB Compass, click "New Connection" and paste the connection string
 5. Replace "password" in the string with our actual password and click connect
  
-## Backend  
+## Running  
 To run the backend, create a text file in the main repository named "MongoDB Password.txt" and paste our MongoDB Atlas cluster password there.  
 Then run:  
 ```
@@ -37,7 +39,18 @@ python apis.py
 
 It should now be running! (Make sure you are also in your environment when you do this. If not, run `pipenv shell` first)
 
-## Discord Bot  
+# Discord Bot  
+
+## Setup  
+### Lavalink
+We need Lavalink for this project.  
+1. Download OpenJDK 13.0.1 from here: https://jdk.java.net/archive/ and save it under `/frontend`  
+2. Then download Lavalink from [here](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1#%2FLavalink.jar). Just click on the `Lavalink.jar`. Once downloaded, put this under `/frontend/jdk-13.0.1/bin`  
+3. Under `/frontend/jdk-13.0.1/bin`, create a file called "application.yml." Then paste the contents from [here](https://github.com/Frederikam/Lavalink/blob/master/LavalinkServer/application.yml.example). Edit the "address" (on line 3) from `0.0.0.0` to `127.0.0.1` and save the file.  
+  
+Note, if you get an error (issue described [here](https://github.com/Frederikam/Lavalink/issues/335)), you may need to download a different version of Java. Try version 13, downloadable from [here](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html). 
+
+## Running
 To run the discord bot, first run Lavalink:  
 ```
 java -jar jdk-13.0.1\bin\Lavalink.jar
