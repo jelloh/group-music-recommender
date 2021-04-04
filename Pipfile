@@ -13,6 +13,8 @@ dnspython = "*"
 flask = "*"
 flask-pymongo = "*"
 bcrypt = "*"
+"discord.py" = {extras = ["voice"], version = "*"}
+wavelink = "*"
 
 [dev-packages]
 

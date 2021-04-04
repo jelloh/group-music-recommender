@@ -1,7 +1,11 @@
 # Secret stuff
 YouTube API Key.txt
 MongoDB Password.txt
+token.0
 
 # Other
 #/notebooks and scratchpaper/.ipynb_checkpoints
 *.ipynb_checkpoints
+
+# figure out what to do with this later
+jdk-13.0.1

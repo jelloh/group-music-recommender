@@ -36,3 +36,9 @@ python apis.py
 ```  
 
 It should now be running! (Make sure you are also in your environment when you do this. If not, run `pipenv shell` first)
+
+## Discord Bot  
+To run the discord bot, first run Lavalink:  
+```
+java -jar jdk-13.0.1\bin\Lavalink.jar
+```
