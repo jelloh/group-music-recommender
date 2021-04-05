@@ -6,7 +6,17 @@ from discord.ext import commands
 class MusicBot(commands.Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./bot/cogs/*.py")]
-        super().__init__(command_prefix=self.prefix, case_insensitive=True)
+        #print(self._cogs)
+
+        # Another option but we will just keep the "discord.Intents.all()" below instead 
+        # intents = discord.Intents.default()
+        # intents.members = True
+
+        super().__init__(
+            command_prefix=self.prefix, 
+            case_insensitive=True, 
+            intents=discord.Intents.all()
+            )
 
     def setup(self):
         print("Running setup...")
@@ -44,12 +54,18 @@ class MusicBot(commands.Bot):
     async def on_disconnect(self):
         print("Bot disconnected.")
 
+    # async def on_error(self, err, *args, **kwargs):
+    #     raise 
+
+    # async def on_command_error(self, ctx, exc):
+    #     raise getattr(exc, "original", exc)
+
     async def on_ready(self):
         self.client_id = (await self.application_info()).id
         print("Bot ready.")
 
     async def prefix(self, bot, msg):
-        return commands.when_mentioned_or("+")(bot, msg)
+        return commands.when_mentioned_or("~")(bot, msg)
 
     async def process_commands(self, msg):
         ctx = await self.get_context(msg, cls=commands.Context)
