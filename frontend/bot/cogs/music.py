@@ -29,6 +29,12 @@ class QueueIsEmpty(commands.CommandError):
 class NoTracksFound(commands.CommandError):
     pass
 
+class PlayerIsAlreadyPaused(commands.CommandError):
+    pass
+
+# was commented out in video.. do we need this though
+class PlayerIsAlreadyPlaying(commands.CommandError):
+    pass
 
 
 class Queue:
@@ -255,6 +261,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.teardown()
         await ctx.send("Disconnect.")
 
+    #TODO - sends message "Playback resumed" even if already playing
     @commands.command(name="play")
     async def play_command(self, ctx, *, query: t.Optional[str]):
         player = self.get_player(ctx)
@@ -263,7 +270,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             await player.connect(ctx)
 
         if query is None:
-            pass
+
+            if player.queue.is_empty:
+                raise QueueIsEmpty
+
+            await player.set_pause(False)
+            await ctx.send("Playback resumed.")
 
         else:
             query = query.strip("<>")
@@ -271,6 +283,40 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 query = f"ytsearch:{query}"
             
             await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
+
+    @play_command.error
+    async def play_command_error(self, ctx, exc):
+        if isinstance(exc, PlayerIsAlreadyPlaying):
+            await ctx.send("Already playing.")
+        elif isinstance(exc, QueueIsEmpty):
+            await ctx.send("No songs to play as the queue is empty.")
+
+    @commands.command(name="pause")
+    async def pause_command(self, ctx):
+        player = self.get_player(ctx)
+
+        if player.is_paused:
+            raise PlayerIsAlreadyPaused
+
+        if player.queue.is_empty:
+            raise QueueIsEmpty
+
+        await player.set_pause(True)
+        await ctx.send("Playback paused.")
+        
+    @pause_command.error
+    async def pause_command_error(self, ctx, exc):
+        if isinstance(exc, PlayerIsAlreadyPaused):
+            await ctx.send("Already paused.")
+        elif isinstance(exc, QueueIsEmpty):
+            await ctx.send("No song currently playing as the queue is empty.")
+
+    @commands.command(name="stop")
+    async def stop_command(self, ctx):
+        player = self.get_player(ctx)
+        player.queue.empty()
+        await player.stop()
+        await ctx.send("Playback stopped.")
 
     @commands.command(name="queue")
     async def queue_command(self, ctx, show: t.Optional[int] = 10):
