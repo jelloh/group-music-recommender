@@ -269,11 +269,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             query = query.strip("<>")
             if not re.match(URL_REGEX, query):
                 query = f"ytsearch:{query}"
-
-            # we can use this later if/when we need to just get the youtube video id
-            #testing = query[query.index("?v=") + 3:]
-            #print(query)
-            #print(testing)
             
             await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
 
