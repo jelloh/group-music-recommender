@@ -132,7 +132,7 @@ class Player(wavelink.Player):
                 await ctx.send(f"Added {track.title} to the queue.")
         
         if not self.is_playing and not self.queue.is_empty:
-            await self.start_playback()
+            await self.start_playback(ctx)
 
     async def choose_track(self, ctx, tracks):
         def _check(r, u):
@@ -171,16 +171,40 @@ class Player(wavelink.Player):
             await msg.delete()
             return tracks[OPTIONS[reaction.emoji]]
 
-    async def start_playback(self):
+    async def start_playback(self, ctx):
         await self.play(self.queue.first_track)
-
+        #await self.rate_song()
+        
     async def advance(self):
         try:
             if (track := self.queue.get_next_track()) is not None:
                 await self.play(track)
+                #await self.rate_song()
         except QueueIsEmpty:
             pass
         
+    # async def rate_song(self, ctx):
+        
+    #     embed = discord.Embed(
+    #         title="Rate the current song",
+    #         description=(
+    #             f"{self.queue.current_track.title}"
+    #         ),
+    #         colour=ctx.me.colour,
+    #         timestamp=dt.datetime.utcnow()
+    #     )
+    #     embed.set_author(name="Query Results")
+    #     embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+
+    #     msg = await bot.send(embed=embed)
+    #     #msg = await bot.say("Rate the current song")
+        
+
+    #     reactions = [👍, 👎]
+    #     for emoji in reactions:
+    #         await msg.add_reaction(emoji)
+
+            
     
 class Music(commands.Cog, wavelink.WavelinkMixin):
     def __init__(self, bot):
@@ -261,7 +285,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.teardown()
         await ctx.send("Disconnect.")
 
-    #TODO - sends message "Playback resumed" even if already playing
+    #TODO - sends message "Playback resumed" even if already playing. Fix it
     @commands.command(name="play")
     async def play_command(self, ctx, *, query: t.Optional[str]):
         player = self.get_player(ctx)
@@ -346,6 +370,28 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
+
+    @commands.command(name="rate")
+    async def rate(self, ctx):
+        player = self.get_player(ctx)
+
+        embed = discord.Embed(
+            title="Rate the current song",
+            description=(
+                f"{player.queue.current_track.title}"
+            ),
+            colour=ctx.author.colour,
+            timestamp=dt.datetime.utcnow()
+        )
+        #embed.set_author(name="Query Results")
+        embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+
+        msg = await ctx.send(embed=embed)
+        #msg = await bot.say("Rate the current song")
+
+        reactions = ['👍', '👎']
+        for emoji in reactions:
+            await msg.add_reaction(emoji)
 
 
 def setup(bot):
