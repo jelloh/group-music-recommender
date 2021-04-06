@@ -96,7 +96,8 @@ class Queue:
         self._queue.clear()
 
 
-class Player(wavelink.Player):
+class Player(wavelink.Player):   
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
@@ -108,6 +109,7 @@ class Player(wavelink.Player):
         if (channel := getattr(ctx.author.voice, "channel", channel)) is None:
             raise NoVoiceChannel
 
+        self.text_channel = ctx.channel
         await super().connect(channel.id)
         return channel
 
@@ -173,38 +175,39 @@ class Player(wavelink.Player):
 
     async def start_playback(self, ctx):
         await self.play(self.queue.first_track)
-        #await self.rate_song()
+        await self.rate_song()
         
     async def advance(self):
         try:
             if (track := self.queue.get_next_track()) is not None:
                 await self.play(track)
-                #await self.rate_song()
+                await self.rate_song()
         except QueueIsEmpty:
             pass
         
-    # async def rate_song(self, ctx):
+    async def rate_song(self):
         
-    #     embed = discord.Embed(
-    #         title="Rate the current song",
-    #         description=(
-    #             f"{self.queue.current_track.title}"
-    #         ),
-    #         colour=ctx.me.colour,
-    #         timestamp=dt.datetime.utcnow()
-    #     )
-    #     embed.set_author(name="Query Results")
-    #     embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+        embed = discord.Embed(
+            title="Rate the current song",
+            description=(
+                f"{self.queue.current_track.title}"
+            ),
+            #colour=ctx.me.colour,
+            timestamp=dt.datetime.utcnow()
+        )
+        #embed.set_author(name="Query Results")
+        #embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
 
-    #     msg = await bot.send(embed=embed)
-    #     #msg = await bot.say("Rate the current song")
+        msg = await self.text_channel.send(embed=embed)
+        #msg = await bot.say("Rate the current song")
         
+        reactions = ['👍', '👎']
+        for emoji in reactions:
+            await msg.add_reaction(emoji)
 
-    #     reactions = [👍, 👎]
-    #     for emoji in reactions:
-    #         await msg.add_reaction(emoji)
-
-            
+        # TODO
+        # 1. Can we show the current ratings of the users in the server?
+        # 2. Make it actually save/update the ratings
     
 class Music(commands.Cog, wavelink.WavelinkMixin):
     def __init__(self, bot):
@@ -370,32 +373,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
-
-    @commands.command(name="rate")
-    async def rate(self, ctx):
-        """
-        I don't really want this as a command though... 
-        More for the rating to pop up whenever a new song starts playing. How?
-        """
-        player = self.get_player(ctx)
-
-        embed = discord.Embed(
-            title="Rate the current song",
-            description=(
-                f"{player.queue.current_track.title}"
-            ),
-            colour=ctx.author.colour,
-            timestamp=dt.datetime.utcnow()
-        )
-        #embed.set_author(name="Query Results")
-        embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-
-        msg = await ctx.send(embed=embed)
-        #msg = await bot.say("Rate the current song")
-
-        reactions = ['👍', '👎']
-        for emoji in reactions:
-            await msg.add_reaction(emoji)
 
 
 def setup(bot):
