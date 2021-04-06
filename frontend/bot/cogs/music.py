@@ -373,6 +373,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="rate")
     async def rate(self, ctx):
+        """
+        I don't really want this as a command though... 
+        More for the rating to pop up whenever a new song starts playing. How?
+        """
         player = self.get_player(ctx)
 
         embed = discord.Embed(
