@@ -88,7 +88,7 @@ def rate_video(user_id):
     try:
         # get info from API call
         video_id = request.form["video_id"]
-        rating = request.form["rating"]
+        rating = int(request.form["rating"])
 
         # check that rating is either 1 or -1
         if(rating == LIKE or rating == DISLIKE) == False:
@@ -98,7 +98,7 @@ def rate_video(user_id):
         #rating = Rating(video_id, rating)
         new_rating = {
             "_id": video_id,
-            "rating": int(rating)
+            "rating": rating
         }
 
         # if user doesn't exist yet, add them
