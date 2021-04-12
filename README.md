@@ -1,13 +1,16 @@
 # group-music-recommender
 Term project for ITIS 6410/8410
-
-# Backend 
-
-## Setup  
+  
+## Setup Python environment for both the frontend and backend  
 1. git clone this repository  
 2. install pipenv from [here](https://pipenv.pypa.io/en/latest/) if you don't already have it  
 3. run `pipenv install` (this should install all the required libraries)  
 4. run `pipenv shell` to go into the newly created environment  
+  
+  
+# Backend 
+
+## Setup  
   
 ### Getting a YouTube API Key 
 1. Go to [console.developers.google.com](https://console.cloud.google.com/projectselector2/apis/dashboard?pli=1&supportedpurview=project)  
