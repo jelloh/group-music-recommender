@@ -61,3 +61,5 @@ Once Lavalink is running, you can start the Discord bot itself using:
 ```
 python .\launcher.py
 ```
+Once you have done this, the Discord bot should be online! :)  
+You can now use it in whatever Discord server it is added.
