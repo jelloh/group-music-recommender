@@ -53,5 +53,11 @@ Note, if you get an error (issue described [here](https://github.com/Frederikam/
 ## Running
 To run the discord bot, first run Lavalink:  
 ```
+cd frontend
 java -jar jdk-13.0.1\bin\Lavalink.jar
+```  
+  
+Once Lavalink is running, you can start the Discord bot itself using:  
+```
+python .\launcher.py
 ```
