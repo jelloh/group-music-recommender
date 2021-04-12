@@ -60,6 +60,9 @@ java -jar jdk-13.0.1\bin\Lavalink.jar
 Once Lavalink is running, you can start the Discord bot itself using:  
 ```
 python .\launcher.py
-```
+```  
+Also note that you need to be in the python environment before running this.  
+To do so, type `pipenv shell`.
+  
 Once you have done this, the Discord bot should be online! :)  
 You can now use it in whatever Discord server it is added.
