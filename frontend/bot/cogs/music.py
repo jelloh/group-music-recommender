@@ -4,7 +4,9 @@ import re
 import typing as t
 
 import discord
+import requests
 import wavelink
+from discord import Reaction
 from discord.ext import commands
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -15,6 +17,10 @@ OPTIONS = {
     "4⃣": 3,
     "5⃣": 4,
 }
+RATING_REACTIONS = {'👍' : 1, '👎': -1}
+
+# I feel like there is a better way to do this, but...
+rating_msgs = []
 
 
 class AlreadyConnectedToChannel(commands.CommandError):
@@ -196,18 +202,24 @@ class Player(wavelink.Player):
             timestamp=dt.datetime.utcnow()
         )
         #embed.set_author(name="Query Results")
-        #embed.set_footer(text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+        #embed.set_footer(text=f"{self.queue.current_track.ytid}")
+        embed.set_footer(text=f"{self.queue.current_track.uri}")
+
+        embed.set_thumbnail(url=self.queue.current_track.thumb)
 
         msg = await self.text_channel.send(embed=embed)
         #msg = await bot.say("Rate the current song")
         
-        reactions = ['👍', '👎']
-        for emoji in reactions:
+        # add the message id to keep track of the songs to be rated
+        # will be used when listening for reactions
+        rating_msgs.append(
+            {"message_id" : msg.id,
+             "video_id" : self.queue.current_track.ytid}
+            )
+
+        for emoji in RATING_REACTIONS.keys():
             await msg.add_reaction(emoji)
 
-        # TODO
-        # 1. Can we show the current ratings of the users in the server?
-        # 2. Make it actually save/update the ratings
     
 class Music(commands.Cog, wavelink.WavelinkMixin):
     def __init__(self, bot):
@@ -233,7 +245,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @wavelink.WavelinkMixin.listener("on_track_exception")
     async def on_player_stop(self, node, payload):
         await payload.player.advance()
-
 
 
     async def cog_check(self, ctx):
@@ -373,6 +384,40 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction: Reaction, user):
+        
+        # I feel like there's definitely a better way to do this
+        # get the index of the rating video this reaction is for
+        # -1 if reaction is to an unrelated message
+        try:
+            i = [i for i, d in enumerate(rating_msgs) if rating_msgs[i]['message_id'] == reaction.message.id][0]
+        except:
+            i = -1
+
+        # only do the following if the reaction is to a rating video message
+        if(user.id != 828089987366256640 and i>=0):
+            # get all the values we need: user id, rating, video id
+            user_id = user.id
+            rating = RATING_REACTIONS[reaction.emoji]
+            youtube_id = rating_msgs[i]['video_id']
+            #print(f"Message id: {reaction.message.id}")
+            
+            # get the url for the api call
+            url = f"http://localhost/ratings/add_rating/{user_id}"
+            
+            # parameters/form data for the api call
+            params = {
+                "video_id" : youtube_id,
+                "rating" : rating
+            }
+
+            # make the call
+            r = requests.patch(url, data=params)
+            print(r)
+
+        
 
 
 def setup(bot):
