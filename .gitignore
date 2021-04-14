@@ -8,4 +8,4 @@ token.0
 *.ipynb_checkpoints
 
 # figure out what to do with this later
-jdk-13.0.1
+jdk-13.0.*
