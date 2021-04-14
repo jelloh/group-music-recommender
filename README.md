@@ -1,13 +1,16 @@
 # group-music-recommender
 Term project for ITIS 6410/8410
-
-# Backend 
-
-## Setup  
+  
+## Setup Python environment for both the frontend and backend  
 1. git clone this repository  
 2. install pipenv from [here](https://pipenv.pypa.io/en/latest/) if you don't already have it  
 3. run `pipenv install` (this should install all the required libraries)  
 4. run `pipenv shell` to go into the newly created environment  
+  
+  
+# Backend 
+
+## Setup  
   
 ### Getting a YouTube API Key 
 1. Go to [console.developers.google.com](https://console.cloud.google.com/projectselector2/apis/dashboard?pli=1&supportedpurview=project)  
@@ -53,5 +56,18 @@ Note, if you get an error (issue described [here](https://github.com/Frederikam/
 ## Running
 To run the discord bot, first run Lavalink:  
 ```
-java -jar jdk-13.0.1\bin\Lavalink.jar
+cd frontend
+cd jdk-13.0.1
+cd bin
+java -jar Lavalink.jar
+```  
+  
+Once Lavalink is running, you can start the Discord bot itself using:  
 ```
+python .\launcher.py
+```  
+Also note that you need to be in the python environment before running this.  
+To do so, type `pipenv shell`.
+  
+Once you have done this, the Discord bot should be online! :)  
+You can now use it in whatever Discord server it is added.
