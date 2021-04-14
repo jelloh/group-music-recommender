@@ -4,7 +4,7 @@ Term project for ITIS 6410/8410
 ## Setup Python environment for both the frontend and backend  
 Download git from [here](https://git-scm.com/downloads) if you don't have it already. Then:  
 
-1. git clone this repository: `git`  
+1. git clone this repository: `git clone https://github.com/jelloh/group-music-recommender.git`  
 2. install pipenv from [here](https://pipenv.pypa.io/en/latest/) if you don't already have it  
 3. run `pipenv install` (this should install all the required libraries)  
 4. run `pipenv shell` to go into the newly created environment  
