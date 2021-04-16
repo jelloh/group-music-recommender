@@ -446,6 +446,11 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         msg = await ctx.send(embed=embed)
 
+    @commands.command(name="rate")
+    async def rate_command(self, ctx):
+        player = self.get_player(ctx)
+        await player.rate_song()
+
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
