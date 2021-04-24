@@ -27,7 +27,7 @@ except:
     print("ERROR - Cannot connect to db")
 
 ## ===============================================================================
-## User and Rating APIS
+## User APIS
 ## ===============================================================================
 
 def add_user(user_id):
@@ -69,6 +69,11 @@ def create_user_api():
         return add_user(user_id)
     except Exception as ex:
         print(ex)
+
+
+## ===============================================================================
+## Rating APIS
+## ===============================================================================
 
 # Reference:
 # https://api.mongodb.com/python/2.9/api/pymongo/collection.html#pymongo.collection.Collection.find_one_and_update
@@ -142,6 +147,53 @@ def rate_video(user_id):
                 status = 200,
                 mimetype = "application/json"
             )
+
+    except Exception as ex:
+        return Response(
+                response = json.dumps(
+                    {"message": str(ex)}
+                ),
+                status = 500,
+                mimetype = "application/json"
+            )
+
+@app.route("/ratings/get_all_users_ratings", methods = ['GET'])
+def get_all_ratings():
+    try:
+        data = list(db.ratings.find())
+        
+        for user in data:
+            # confert the fancy object id to just a text id
+            user["_id"] = str(user["_id"])
+
+        return Response(
+            response = json.dumps(
+                data),
+            status = 200,
+            mimetype="application/json"
+        )
+
+    except Exception as ex:
+        return Response(
+                response = json.dumps(
+                    {"message": str(ex)}
+                ),
+                status = 500,
+                mimetype = "application/json"
+            )
+
+@app.route("/ratings/get_ratings/<user_id>", methods = ['GET'])
+def get_ratings(user_id):
+    try:
+        data = list(db.ratings.find({"_id" : user_id}))[0]['ratings']
+        #print(data[0]['ratings'])
+
+        return Response(
+            response = json.dumps(
+                data),
+            status = 200,
+            mimetype="application/json"
+        )
 
     except Exception as ex:
         return Response(
