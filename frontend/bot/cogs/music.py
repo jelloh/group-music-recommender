@@ -3,6 +3,7 @@ import datetime as dt
 import re
 import random
 import typing as t
+from enum import Enum
 
 import discord
 import requests
@@ -49,29 +50,39 @@ class NoMoreTracks(commands.CommandError):
 class NoPreviousTracks(commands.CommandError):
     pass
 
+class InvalidRepeatMode(commands.CommandError):
+    pass
+
+
+class RepeatMode(Enum):
+    NONE = 0
+    ONE = 1
+    ALL = 2
+
 
 class Queue:
     def __init__(self):
         self._queue = []
         self.position = 0
+        self.repeat_mode = RepeatMode.NONE
 
     @property
     def is_empty(self):
         return not self._queue
 
-    @property
-    def first_track(self):
-        if not self._queue:
-            raise QueueIsEmpty
+    #@property
+    #def first_track(self):
+    #    if not self._queue:
+    #       raise QueueIsEmpty
 
-        return self._queue[0]
+     #   return self._queue[0]
 
     @property
     def current_track(self):
         if not self._queue:
             raise QueueIsEmpty
-
-        return self._queue[self.position]
+        if self.position <= len(self._queue) - 1:
+            return self._queue[self.position]
 
     @property
     def upcoming(self):
@@ -100,8 +111,13 @@ class Queue:
 
         self.position += 1
 
-        if self.position > len(self._queue) - 1:
+        if self.position < 0:
             return None
+        elif self.position > len(self._queue) - 1:
+            if self.repeat_mode == RepeatMode.ALL:
+                self.position = 0
+            else:
+                return None
 
         return self._queue[self.position]
 
@@ -114,6 +130,14 @@ class Queue:
         self._queue = self._queue[:self.position + 1]
         self._queue.extend(upcoming)
 
+    def set_repeat_mode(self, mode):
+        if mode == "none":
+            self.repeat_mode = RepeatMode.NONE
+        elif mode == "1":
+            self.repeat_mode = RepeatMode.ONE
+        elif mode == "all":
+            self.repeat_mode = RepeatMode.ALL
+
     def empty(self):
         self._queue.clear()
 
@@ -123,6 +147,7 @@ class Player(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
+        self.list = List()
 
     async def connect(self, ctx, channel=None):
         if self.is_connected:
@@ -196,7 +221,7 @@ class Player(wavelink.Player):
             return tracks[OPTIONS[reaction.emoji]]
 
     async def start_playback(self, ctx):
-        await self.play(self.queue.first_track)
+        await self.play(self.queue.current_track)
         await self.rate_song()
         
     async def advance(self):
@@ -206,6 +231,11 @@ class Player(wavelink.Player):
                 await self.rate_song()
         except QueueIsEmpty:
             pass
+
+    async def repeat_track(self):
+        await self.play(self.queue.current_track)
+
+
         
     async def rate_song(self):
         
@@ -260,7 +290,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @wavelink.WavelinkMixin.listener("on_track_end")
     @wavelink.WavelinkMixin.listener("on_track_exception")
     async def on_player_stop(self, node, payload):
-        await payload.player.advance()
+        if payload.player.queue.repeat_mode == RepeatMode.ONE:
+           await payload.player.repeat_track()
+        else:
+            await payload.player.advance()
 
 
     async def cog_check(self, ctx):
@@ -412,6 +445,16 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue could not be shuffled as it is currently empty.")
 
+    @commands.command(name="repeat")
+    async def repeat_command(self, ctx, mode: str):
+        if mode not in ("none","1","all"):
+            raise InvalidRepeatMode
+
+        player = self.get_player(ctx)
+        player.queue.set_repeat_mode(mode)
+        await ctx.send("The repeat mode has been set to {mode}.")
+
+
     @previous_command.error
     async def previous_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
@@ -436,7 +479,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         )
         embed.set_author(name="Query Results")
         embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Currently playing", value=player.queue.current_track.title, inline=False)
+        embed.add_field(name="Currently playing",
+                        value=getattr(player.queue.current_track,"title","No tracks currently playing."),
+                        inline=False
+                        )
         if upcoming := player.queue.upcoming:
             embed.add_field(
                 name="Next up",
@@ -446,15 +492,25 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         msg = await ctx.send(embed=embed)
 
-    @commands.command(name="rate")
-    async def rate_command(self, ctx):
-        player = self.get_player(ctx)
-        await player.rate_song()
-
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
+
+
+
+    Keyword_list = []
+    @commands.command(name="keyword")
+    async def keyword(self,ctx,arg):
+        await ctx.send(arg)
+        self.Keyword_list.append(arg)
+        print(self.Keyword_list)
+
+    @commands.command(name="Remove")
+    async def Remove(self,ctx,arg):
+        await ctx.send(arg)
+        self.Keyword_list.remove(arg)
+        print(self.Keyword_list)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction: Reaction, user):
