@@ -147,7 +147,7 @@ class Player(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
-        self.list = List()
+
 
     async def connect(self, ctx, channel=None):
         if self.is_connected:
@@ -349,7 +349,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await ctx.send("Disconnect.")
 
     #TODO - sends message "Playback resumed" even if already playing. Fix it
-    @commands.command(name="play")
+    @commands.command(name="play", aliases=["p"])
     async def play_command(self, ctx, *, query: t.Optional[str]):
         player = self.get_player(ctx)
 
