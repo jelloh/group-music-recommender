@@ -11,6 +11,8 @@ import wavelink
 from discord import Reaction
 from discord.ext import commands
 
+from recommender import Recommender
+
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 OPTIONS = {
     "1️⃣": 0,
@@ -331,6 +333,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
 
     # --------------------------------------------------------------------
+    # PLAYER COMMANDS
+    # --------------------------------------------------------------------
     # TODO/Ideas
     # - command to play top (add a song to the top of the queue)
 
@@ -409,7 +413,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.stop()
         await ctx.send("Playback stopped.")
 
-
     @commands.command(name="next", aliases=["skip"])
     async def next_command(self, ctx):
         player = self.get_player(ctx)
@@ -418,7 +421,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             raise NoMoreTracks
         await player.stop()
         await ctx.send("playing next track in queue.")
-
 
     @next_command.error
     async def next_command_error(self, ctx, exc):
@@ -458,16 +460,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         player.queue.set_repeat_mode(mode)
         await ctx.send("The repeat mode has been set to {mode}.")
 
-
     @previous_command.error
     async def previous_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("This could not be executed as the queue is currently empty.")
         elif isinstance(exc, NoPreviousTracks):
             await ctx.send("There are no previous tracks in the queue.")
-
-
-
 
     @commands.command(name="queue")
     async def queue_command(self, ctx, show: t.Optional[int] = 10):
@@ -502,19 +500,26 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             await ctx.send("The queue is currently empty.")
 
 
+    # --------------------------------------------------------------------
+    # KEYWORDS
+    # --------------------------------------------------------------------
 
     Keyword_list = []
-    @commands.command(name="keyword")
+    @commands.command(name="addkeyword", aliases=['keyadd'])
     async def keyword(self,ctx,arg):
         await ctx.send(arg)
         self.Keyword_list.append(arg)
         print(self.Keyword_list)
 
-    @commands.command(name="Remove")
+    @commands.command(name="removekeyword", aliases=['keyremove'])
     async def Remove(self,ctx,arg):
         await ctx.send(arg)
         self.Keyword_list.remove(arg)
         print(self.Keyword_list)
+
+    # --------------------------------------------------------------------
+    # LISTENERS
+    # --------------------------------------------------------------------
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction: Reaction, user):
