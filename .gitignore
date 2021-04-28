@@ -6,6 +6,7 @@ token.0
 # Other
 #/notebooks and scratchpaper/.ipynb_checkpoints
 *.ipynb_checkpoints
+venv
 
 # figure out what to do with this later
 jdk-13.0.*

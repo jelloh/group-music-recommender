@@ -147,7 +147,7 @@ class Player(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
-
+        self.list = List()
 
     async def connect(self, ctx, channel=None):
         if self.is_connected:
@@ -329,11 +329,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         elif isinstance(obj, discord.Guild):
             return self.wavelink.get_player(obj.id, cls=Player)
 
-
-    # --------------------------------------------------------------------
-    # TODO/Ideas
-    # - command to play top (add a song to the top of the queue)
-
     @commands.command(name="connect", aliases=["join"])
     async def connect_command(self, ctx, *, channel: t.Optional[discord.VoiceChannel]):
         player = self.get_player(ctx)
@@ -353,7 +348,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.teardown()
         await ctx.send("Disconnect.")
 
-    @commands.command(name="play", aliases=["p"])
+    #TODO - sends message "Playback resumed" even if already playing. Fix it
+    @commands.command(name="play")
     async def play_command(self, ctx, *, query: t.Optional[str]):
         player = self.get_player(ctx)
 
