@@ -499,23 +499,22 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if isinstance(exc, QueueIsEmpty):
             await ctx.send("The queue is currently empty.")
 
-
     # --------------------------------------------------------------------
-    # KEYWORDS
+    # RECOMMENDATION
     # --------------------------------------------------------------------
 
-    Keyword_list = []
+    keyword_list = []
     @commands.command(name="addkeyword", aliases=['keyadd'])
-    async def keyword(self,ctx,arg):
+    async def add_keyword(self,ctx,arg):
         await ctx.send(arg)
-        self.Keyword_list.append(arg)
-        print(self.Keyword_list)
+        self.keyword_list.append(arg)
+        print(self.keyword_list)
 
     @commands.command(name="removekeyword", aliases=['keyremove'])
-    async def Remove(self,ctx,arg):
+    async def remove_keyword(self,ctx,arg):
         await ctx.send(arg)
-        self.Keyword_list.remove(arg)
-        print(self.Keyword_list)
+        self.keyword_list.remove(arg)
+        print(self.keyword_list)
 
     # --------------------------------------------------------------------
     # LISTENERS
