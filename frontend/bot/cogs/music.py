@@ -29,6 +29,8 @@ RATING_REACTIONS = {'👍' : 1, '👎': -1}
 # I feel like there is a better way to do this, but...
 rating_msgs = []
 
+last_command = None
+
 # set to true for songs to automatically be recommended when queue runs out
 # automatic_recs = False
 
@@ -243,8 +245,6 @@ class Player(wavelink.Player):
     async def repeat_track(self):
         await self.play(self.queue.current_track)
 
-
-        
     async def rate_song(self):
         
         embed = discord.Embed(
@@ -354,6 +354,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         #await ctx.send(f"Connected to {channel.name}.")
         await ctx.send(f"(*￣3￣)╭ Hello! I've joined {channel.name}~")
 
+        global last_command
+        last_command = "connect"
+
     @connect_command.error
     async def connect_command_error(self, ctx, exc):
         if isinstance(exc, AlreadyConnectedToChannel):
@@ -393,6 +396,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             
             await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
 
+        global last_command
+        last_command = "play"
+
     @play_command.error
     async def play_command_error(self, ctx, exc):
         if isinstance(exc, PlayerIsAlreadyPlaying):
@@ -415,6 +421,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.set_pause(True)
         #await ctx.send("Playback paused.")
         await ctx.send("(￣o￣) . z Z Pausing your music..")
+
+        global last_command
+        last_command = "pause"
         
     @pause_command.error
     async def pause_command_error(self, ctx, exc):
@@ -431,6 +440,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         #await ctx.send("Playback stopped.")
         await ctx.send("( •̀ ω •́ )✧ Ok! I'll stop playing songs.\nI also cleared your queue for you. ")
 
+        global last_command
+        last_command = "stop"
+
     @commands.command(name="next", aliases=["skip"])
     async def next_command(self, ctx):
         player = self.get_player(ctx)
@@ -440,6 +452,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await player.stop()
         #await ctx.send("playing next track in queue.")
         await ctx.send("╰(*°▽°*)╯ Skipping this song~ ")
+
+        global last_command
+        last_command = "next"
 
     @next_command.error
     async def next_command_error(self, ctx, exc):
@@ -462,12 +477,18 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         #await ctx.send("playing previous track in queue.")
         await ctx.send("(～￣▽￣)～ Going back one~ Playing the previous track.")
 
+        global last_command
+        last_command = "previous"
+
     @commands.command(name="shuffle")
     async def shuffle_command(self, ctx):
         player = self.get_player(ctx)
         player.queue.shuffle()
         #await ctx.send("Queue shuffled.")
         await ctx.send("( •̀ ω •́ )✧ I shuffled your queue!")
+
+        global last_command
+        last_command = "shuffle"
 
     @shuffle_command.error
     async def  shuffle_command_error(self, ctx, exc):
@@ -483,6 +504,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         player = self.get_player(ctx)
         player.queue.set_repeat_mode(mode)
         await ctx.send("The repeat mode has been set to {mode}.")
+
+        global last_command
+        last_command = "repeat"
 
     @previous_command.error
     async def previous_command_error(self, ctx, exc):
@@ -518,6 +542,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         msg = await ctx.send(embed=embed)
 
+        global last_command
+        last_command = "queue"
+
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
@@ -536,12 +563,18 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         
         print(self.keyword_list)
 
+        global last_command
+        last_command = "keywordadd"
+
     @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk'])
     async def remove_keyword(self, ctx, arg):
         await ctx.send(f"Removed keyword: {arg}")
         self.keyword_list.remove(arg)
         
         print(self.keyword_list)
+
+        global last_command
+        last_command = "keywordremove"
 
     @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
     async def set_auto_recommender(self, ctx):
@@ -551,6 +584,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         elif self.automatic_recs == True:
             await ctx.send("I'll stop recommending songs then~ \n(°ロ°) Play your own music!")
             self.automatic_recs = False
+
+        global last_command
+        last_command = "setautorecommend"
 
     @commands.command(name="recommend")
     async def recommend(self, ctx, arg):
@@ -585,6 +621,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         for video in self.recommender.recommend(K):
             await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
 
+        global last_command
+        last_command = "recommend"
         
 
         # await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
