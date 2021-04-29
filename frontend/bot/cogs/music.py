@@ -63,6 +63,9 @@ class NoPreviousTracks(commands.CommandError):
 class InvalidRepeatMode(commands.CommandError):
     pass
 
+class KeywordsEmpty(commands.CommandError):
+    pass
+
 
 class RepeatMode(Enum):
     NONE = 0
@@ -549,7 +552,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     keyword_list = []
     @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak'])
-    async def add_keyword(self, ctx, arg):
+    async def add_keyword_command(self, ctx, arg):
         await ctx.send(f"Adding new keyword: {arg}")
         self.keyword_list.append(arg)
         
@@ -559,7 +562,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         last_command = "keywordadd"
 
     @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk'])
-    async def remove_keyword(self, ctx, arg):
+    async def remove_keyword_command(self, ctx, arg):
         await ctx.send(f"Removed keyword: {arg}")
         self.keyword_list.remove(arg)
         
@@ -569,7 +572,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         last_command = "keywordremove"
 
     @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
-    async def set_auto_recommender(self, ctx):
+    async def set_auto_recommender_command(self, ctx):
         if self.automatic_recs == False:
             await ctx.send("(゜▽゜*)♪ Ok! I'll automatically recommend songs when your queue is empty.")
             self.automatic_recs = True
@@ -581,13 +584,16 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         last_command = "setautorecommend"
 
     @commands.command(name="recommend")
-    async def recommend(self, ctx, arg):
+    async def recommend_command(self, ctx, arg):
         """
         args:
         1 - K. a number to specify how many songs to recommend and add to the queue. 
             Will recommend top-K songs based on the strategy
         """
 
+        if(len(self.keyword_list) == 0):
+            raise KeywordsEmpty
+            
         await ctx.send("This might take a little bit. \nI am learning `(*>﹏<*)′ Please be patient. ❤")
 
         K = int(arg[0])
@@ -602,6 +608,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         # Update video list only if keywords have changed
         # (so we don't have to search youtube every single time)
+        print(f"keyword list: {self.keyword_list}")
+        print(f"recommender's keywords: {self.recommender.get_keywords()}")
         if(set(self.keyword_list) != set(self.recommender.get_keywords())):
             print("updating keywords")
             self.recommender.set_keywords(self.keyword_list)
@@ -615,9 +623,11 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         global last_command
         last_command = "recommend"
-        
 
-        # await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
+    @recommend_command.error
+    async def recommend_command_error(self, ctx, exc):
+        if isinstance(exc, KeywordsEmpty):
+            await ctx.send("（*゜ー゜*）I can't recommend without some keywords first! \nAdd some. *p l e a s e ~*")
 
     # --------------------------------------------------------------------
     # LISTENERS
