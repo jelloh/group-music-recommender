@@ -347,7 +347,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # TODO/Ideas
     # - command to play top (add a song to the top of the queue)
 
-    @commands.command(name="connect", aliases=["join"])
+    @commands.command(name="connect", aliases=["join","hello"])
     async def connect_command(self, ctx, *, channel: t.Optional[discord.VoiceChannel]):
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
