@@ -591,20 +591,18 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             Will recommend top-K songs based on the strategy
         """
 
+        # Error handling for if no keywords exit
         if(len(self.keyword_list) == 0):
             raise KeywordsEmpty
             
         await ctx.send("This might take a little bit. \nI am learning `(*>﹏<*)′ Please be patient. ❤")
 
         K = int(arg[0])
-        print(f"Our K is {K}")
 
         # initialize recommender 
         if(self.recommender is None):
             print("initializing recommender")
             self.recommender = Recommender(self.keyword_list)
-
-        # TODO error handling if no keywords exist
 
         # Update video list only if keywords have changed
         # (so we don't have to search youtube every single time)
