@@ -1,6 +1,9 @@
 from scraper import Scraper
 import random
 
+from scraper import Scraper
+import random
+
 class Recommender:
     def __init__(self, keywords):
         """
@@ -12,7 +15,7 @@ class Recommender:
         
         # Before beginning, get the initial list of keywords
         self.scraper = Scraper()
-        self.searched_ids = self.scraper.search_videos(keywords)
+        self.searched_ids = self.scraper.search_videos(self.keywords)
     # --------------------------------------    
     
     def recommend(self, K = 1):
@@ -45,7 +48,7 @@ class Recommender:
             while self.searched_ids[num] in recommended:
                 num = random.randint(0,len(self.searched_ids))
             
-            recommended.append(self.searched_ids[num])
+            recommended.append(self.convert_to_url(self.searched_ids[num]))
             
         return recommended
     
@@ -70,9 +73,20 @@ class Recommender:
         
     def view_keywords(self):
         print(self.keywords)
+
+    def get_keywords(self):
+        return self.keywords
+
+    def update_video_list(self):
+        self.scraper = Scraper()
+        self.searched_ids = self.scraper.search_videos(self.keywords)
         
     def view_youtube_list(self):
         print(self.searched_ids)
+        
+    def convert_to_url(self, y_id):
+        # https://www.youtube.com/watch?v=q3J0H5SAhJY
+        return f"https://www.youtube.com/watch?v={y_id}"
         
     # --------------------------------------
         

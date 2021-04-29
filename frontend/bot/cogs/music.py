@@ -11,6 +11,9 @@ import wavelink
 from discord import Reaction
 from discord.ext import commands
 
+import os, sys
+CURR_DIR = os.getcwd()
+sys.path.append(CURR_DIR + "\\bot\\cogs\\utils")
 from recommender import Recommender
 
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -25,6 +28,9 @@ RATING_REACTIONS = {'👍' : 1, '👎': -1}
 
 # I feel like there is a better way to do this, but...
 rating_msgs = []
+
+# set to true for songs to automatically be recommended when queue runs out
+automatic_recs = False
 
 
 class AlreadyConnectedToChannel(commands.CommandError):
@@ -275,6 +281,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         self.wavelink = wavelink.Client(bot=bot)
         self.bot.loop.create_task(self.start_nodes())
 
+        self.recommender = None
+
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """
@@ -504,17 +512,56 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # --------------------------------------------------------------------
 
     keyword_list = []
-    @commands.command(name="addkeyword", aliases=['keyadd'])
-    async def add_keyword(self,ctx,arg):
-        await ctx.send(arg)
+    @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak'])
+    async def add_keyword(self, ctx, arg):
+        await ctx.send(f"Adding new keyword: {arg}")
         self.keyword_list.append(arg)
+        
         print(self.keyword_list)
 
-    @commands.command(name="removekeyword", aliases=['keyremove'])
-    async def remove_keyword(self,ctx,arg):
-        await ctx.send(arg)
+    @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk'])
+    async def remove_keyword(self, ctx, arg):
+        await ctx.send(f"Removed keyword: {arg}")
         self.keyword_list.remove(arg)
+        
         print(self.keyword_list)
+
+    @commands.command(name="recommend")
+    async def recommend(self, ctx, arg):
+        """
+        args:
+        1 - K. a number to specify how many songs to recommend and add to the queue. 
+            Will recommend top-K songs based on the strategy
+        """
+
+        await ctx.send("This might take a little bit. I am learning 😌❤")
+
+        K = int(arg[0])
+        print(f"Our K is {K}")
+
+        # initialize recommender 
+        if(self.recommender is None):
+            print("initializing recommender")
+            self.recommender = Recommender(self.keyword_list)
+
+        # TODO error handling if no keywords exist
+
+        # Update video list only if keywords have changed
+        # (so we don't have to search youtube every single time)
+        if(set(self.keyword_list) != set(self.recommender.get_keywords())):
+            print("updating keywords")
+            self.recommender.set_keywords(self.keyword_list)
+            self.recommender.update_video_list()
+        
+        # Add the tracks now
+        player = self.get_player(ctx)
+
+        for video in self.recommender.recommend(K):
+            await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
+
+        
+
+        # await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
 
     # --------------------------------------------------------------------
     # LISTENERS
