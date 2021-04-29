@@ -521,7 +521,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("The queue is currently empty.")
+            #await ctx.send("The queue is currently empty.")
+            await ctx.send("(。﹏。*) Your queue is empty..")
 
     # --------------------------------------------------------------------
     # RECOMMENDATION
