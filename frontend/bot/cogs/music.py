@@ -30,7 +30,7 @@ RATING_REACTIONS = {'👍' : 1, '👎': -1}
 rating_msgs = []
 
 # set to true for songs to automatically be recommended when queue runs out
-automatic_recs = False
+# automatic_recs = False
 
 
 class AlreadyConnectedToChannel(commands.CommandError):
@@ -282,6 +282,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         self.bot.loop.create_task(self.start_nodes())
 
         self.recommender = None
+        self.automatic_recs = False
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -350,20 +351,24 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def connect_command(self, ctx, *, channel: t.Optional[discord.VoiceChannel]):
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
-        await ctx.send(f"Connected to {channel.name}.")
+        #await ctx.send(f"Connected to {channel.name}.")
+        await ctx.send(f"(*￣3￣)╭ Hello! I've joined {channel.name}~")
 
     @connect_command.error
     async def connect_command_error(self, ctx, exc):
         if isinstance(exc, AlreadyConnectedToChannel):
-            await ctx.send("Already connected to a voice channel.")
+            #await ctx.send("Already connected to a voice channel.")
+            await ctx.send("（；´д｀）ゞ I'm already connected to a voice channel.")
         elif isinstance(exc, NoVoiceChannel):
-            await ctx.send("No suitable voice channel was provided.")
+            #await ctx.send("No suitable voice channel was provided.")
+            await ctx.send("(´。＿。｀) I don't know where to join!")
 
     @commands.command(name="disconnect", aliases=["leave"])
     async def disconnect_command(self, ctx):
         player = self.get_player(ctx)
         await player.teardown()
-        await ctx.send("Disconnect.")
+        #await ctx.send("Disconnect.")
+        await ctx.send("~(>_<。)＼ Bye!")
 
     @commands.command(name="play", aliases=["p"])
     async def play_command(self, ctx, *, query: t.Optional[str]):
@@ -378,7 +383,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 raise QueueIsEmpty
 
             await player.set_pause(False)
-            await ctx.send("Playback resumed.")
+            #await ctx.send("Playback resumed.")
+            await ctx.send("(づ￣ 3￣)づ Resuming playback~")
 
         else:
             query = query.strip("<>")
@@ -390,9 +396,11 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @play_command.error
     async def play_command_error(self, ctx, exc):
         if isinstance(exc, PlayerIsAlreadyPlaying):
-            await ctx.send("Already playing.")
+            #await ctx.send("Already playing.")
+            await ctx.send("(╬▔皿▔)╯ What are you doing? I'm already playing!")
         elif isinstance(exc, QueueIsEmpty):
-            await ctx.send("No songs to play as the queue is empty.")
+            #await ctx.send("No songs to play as the queue is empty.")
+            await ctx.send("╰（‵□′）╯ The queue is empty! No songs for me to play you.")
 
     @commands.command(name="pause")
     async def pause_command(self, ctx):
@@ -405,7 +413,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             raise QueueIsEmpty
 
         await player.set_pause(True)
-        await ctx.send("Playback paused.")
+        #await ctx.send("Playback paused.")
+        await ctx.send("(￣o￣) . z Z Pausing your music..")
         
     @pause_command.error
     async def pause_command_error(self, ctx, exc):
@@ -419,7 +428,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         player = self.get_player(ctx)
         player.queue.empty()
         await player.stop()
-        await ctx.send("Playback stopped.")
+        #await ctx.send("Playback stopped.")
+        await ctx.send("( •̀ ω •́ )✧ Ok! I'll stop playing songs.\nI also cleared your queue for you. ")
 
     @commands.command(name="next", aliases=["skip"])
     async def next_command(self, ctx):
@@ -428,14 +438,17 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if not player.queue.upcoming:
             raise NoMoreTracks
         await player.stop()
-        await ctx.send("playing next track in queue.")
+        #await ctx.send("playing next track in queue.")
+        await ctx.send("╰(*°▽°*)╯ Skipping this song~ ")
 
     @next_command.error
     async def next_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("This could not be executed as the queue is currently empty.")
+            #await ctx.send("This could not be executed as the queue is currently empty.")
+            await ctx.send("(´。＿。｀)... Your queue is empty. ")
         elif isinstance(exc, NoMoreTracks):
-            await ctx.send("There are no more tracks in the queue.")
+            #await ctx.send("There are no more tracks in the queue.")
+            await ctx.send("o(￣┰￣*)ゞ You have no more tracks in the queue!")
 
     @commands.command(name="previous")
     async def previous_command(self, ctx):
@@ -446,18 +459,21 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         player.queue.position -= 2
         await player.stop()
-        await ctx.send("playing previous track in queue.")
+        #await ctx.send("playing previous track in queue.")
+        await ctx.send("(～￣▽￣)～ Going back one~ Playing the previous track.")
 
     @commands.command(name="shuffle")
     async def shuffle_command(self, ctx):
         player = self.get_player(ctx)
         player.queue.shuffle()
-        await ctx.send("Queue shuffled.")
+        #await ctx.send("Queue shuffled.")
+        await ctx.send("( •̀ ω •́ )✧ I shuffled your queue!")
 
     @shuffle_command.error
     async def  shuffle_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            await ctx.send("The queue could not be shuffled as it is currently empty.")
+            #await ctx.send("The queue could not be shuffled as it is currently empty.")
+            await ctx.send("/(ㄒoㄒ)/~~ Your queue is empty! There's nothing for me to shuffle.")
 
     @commands.command(name="repeat")
     async def repeat_command(self, ctx, mode: str):
@@ -526,6 +542,15 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         
         print(self.keyword_list)
 
+    @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
+    async def set_auto_recommender(self, ctx):
+        if self.automatic_recs == False:
+            await ctx.send("Ok! I'll automatically recommend songs when your queue is empty. \n(゜▽゜*)♪")
+            self.automatic_recs = True
+        elif self.automatic_recs == True:
+            await ctx.send("I'll stop recommending songs then~ \nPlay your own music! (°ロ°)")
+            self.automatic_recs = False
+
     @commands.command(name="recommend")
     async def recommend(self, ctx, arg):
         """
@@ -534,7 +559,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             Will recommend top-K songs based on the strategy
         """
 
-        await ctx.send("This might take a little bit. I am learning 😌❤")
+        await ctx.send("This might take a little bit. \nI am learning `(*>﹏<*)′ Please be patient. ❤")
 
         K = int(arg[0])
         print(f"Our K is {K}")
