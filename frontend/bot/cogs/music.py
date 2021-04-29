@@ -546,10 +546,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
     async def set_auto_recommender(self, ctx):
         if self.automatic_recs == False:
-            await ctx.send("Ok! I'll automatically recommend songs when your queue is empty. \n(゜▽゜*)♪")
+            await ctx.send("(゜▽゜*)♪ Ok! I'll automatically recommend songs when your queue is empty.")
             self.automatic_recs = True
         elif self.automatic_recs == True:
-            await ctx.send("I'll stop recommending songs then~ \nPlay your own music! (°ロ°)")
+            await ctx.send("I'll stop recommending songs then~ \n(°ロ°) Play your own music!")
             self.automatic_recs = False
 
     @commands.command(name="recommend")
