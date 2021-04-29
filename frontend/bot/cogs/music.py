@@ -80,13 +80,6 @@ class Queue:
     def is_empty(self):
         return not self._queue
 
-    #@property
-    #def first_track(self):
-    #    if not self._queue:
-    #       raise QueueIsEmpty
-
-     #   return self._queue[0]
-
     @property
     def current_track(self):
         if not self._queue:
@@ -157,7 +150,6 @@ class Player(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.queue = Queue()
-
 
     async def connect(self, ctx, channel=None):
         if self.is_connected:
