@@ -363,7 +363,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             #await ctx.send("No suitable voice channel was provided.")
             await ctx.send("(´。＿。｀) I don't know where to join!")
 
-    @commands.command(name="disconnect", aliases=["leave"])
+    @commands.command(name="disconnect", aliases=["leave", "bye"])
     async def disconnect_command(self, ctx):
         player = self.get_player(ctx)
         await player.teardown()
