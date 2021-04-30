@@ -572,8 +572,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         last_command = "keywordremove"
 
     @commands.command(name="keywordclear", aliases=["clearkeywords", "clearkeys", "keyclear"])
-    async def clear_keyword_command(self, ctx, arg):
-        await ctx.send("（⊙ｏ⊙）Clearing all keywords..")
+    async def clear_keyword_command(self, ctx):
+        await ctx.send("(❁´◡`❁) Clearing all keywords..")
         self.keyword_list = []
 
         global last_command
