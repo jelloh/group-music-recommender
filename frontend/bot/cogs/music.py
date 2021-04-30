@@ -553,7 +553,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     keyword_list = []
     @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak'])
     async def add_keyword_command(self, ctx, arg):
-        await ctx.send(f"Adding new keyword: {arg}")
+        await ctx.send(f"(‾◡◝) Adding your keyword: {arg}")
         self.keyword_list.append(arg)
         
         print(self.keyword_list)
@@ -563,13 +563,21 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk'])
     async def remove_keyword_command(self, ctx, arg):
-        await ctx.send(f"Removed keyword: {arg}")
+        await ctx.send(f"(˘･_･˘) I removed your keyword: {arg}")
         self.keyword_list.remove(arg)
         
         print(self.keyword_list)
 
         global last_command
         last_command = "keywordremove"
+
+    @commands.command(name="keywordclear", aliases=["clearkeywords", "clearkeys", "keyclear"])
+    async def clear_keyword_command(self, ctx, arg):
+        await ctx.send("（⊙ｏ⊙）Clearing all keywords..")
+        self.keyword_list = []
+
+        global last_command
+        last_command = "keywordclear"
 
     @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
     async def set_auto_recommender_command(self, ctx):
