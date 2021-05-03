@@ -94,17 +94,21 @@ class Recommender:
 
         # Step 4 - Cosine Similarity
         print("4. Calculating cosine similarity")
-        cosine_scores = util.pytorch_cos_sim(searched_embeds, liked_embeds).numpy()
+        try:
+            cosine_scores = util.pytorch_cos_sim(self.searched_embeds, liked_embeds).numpy()
+        except Exception as e:
+            print(f"Error in calculating cosine similarity: {e}")
 
-        print("we made it here hehe")
         scores = []
         r = [row.rating for row in ratings.itertuples()]
-        print("and here")
-        for i in range(0, len(cosine_scores)):
-            index = list(cosine_scores[i]).index(max(cosine_scores[i]))
-            print("aaaaaaaand here")
-            scores.append({'score':max(cosine_scores[i]) * r[index],
-                           'video_id':self.df.iloc[i]['video_id']})
+
+        try:
+            for i in range(0, len(cosine_scores)):
+                index = list(cosine_scores[i]).index(max(cosine_scores[i]))
+                scores.append({'score':max(cosine_scores[i]) * r[index],
+                            'video_id':self.df.iloc[i]['video_id']})
+        except Exception as e:
+            print(f"poopy {e}")
 
         #print(scores.head())
         # return [convert_to_url(i) for i in scores.nlargest(K, ['score'])['video_id']]
@@ -145,7 +149,7 @@ class Recommender:
 
                 # if the video does not meet the threshold (e.g., is negative and a user disliked it)
                 # then do not include it in the final list of videos to recommend
-                if(scores[user_index]['scores'][video_index]['score'] < THRESHOLD):
+                if(scores[user_index]['scores'][video_index]['score'] < threshold):
                     negatives = True
                     break
                 # else, we take the average
@@ -156,10 +160,10 @@ class Recommender:
                 average = average/num_users
                 if(average < 0.999): # dont include those with 1, meaning everyone has already heard it
                     #print(average)
-                    removed_negatives.append({"score" : average, "video_id": ids[video_index]})
+                    removed_negatives.append({"score" : average, "video_id": self.searched_ids[video_index]})
 
         # return URLs from top K recommended songs
-        return [convert_to_url(i) for i in pd.DataFrame(removed_negatives).nlargest(K, columns=['score'])['video_id']]
+        return [self.convert_to_url(i) for i in pd.DataFrame(removed_negatives).nlargest(K, columns=['score'])['video_id']]
     
     def strat_random(self, K):
         recommended = []

@@ -694,9 +694,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         print("we are here~")
 
-        # Add tracks based on returned recommended list
-        for video in self.recommender.recommend(users= users, K = K):
-            await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
+        try:
+            # Add tracks based on returned recommended list
+            for video in self.recommender.recommend(users= users, K = K):
+                await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
+        except Exception as e:
+            print(f"ASODHFAHSDF {e}")
 
         global last_command
         last_command = "recommend"
