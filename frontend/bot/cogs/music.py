@@ -551,7 +551,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # --------------------------------------------------------------------
 
     keyword_list = []
-    @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak'])
+    @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak', 'addkey'])
     async def add_keyword_command(self, ctx, arg):
         await ctx.send(f"(‾◡◝) Adding your keyword: {arg}")
         self.keyword_list.append(arg)
@@ -561,7 +561,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         global last_command
         last_command = "keywordadd"
 
-    @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk'])
+    @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk', 'removekey'])
     async def remove_keyword_command(self, ctx, arg):
         await ctx.send(f"(˘･_･˘) I removed your keyword: {arg}")
         self.keyword_list.remove(arg)
@@ -638,10 +638,25 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             self.recommender.set_keywords(self.keyword_list)
             self.recommender.update_video_list()
         
-        # Add the tracks now
+        # Get player
         player = self.get_player(ctx)
 
-        for video in self.recommender.recommend(K):
+        # Get users in the voice channel
+        # player.channel_id 
+        print(f"CHANNEL ID: {player.channel_id}")
+        channel = self.bot.get_channel(player.channel_id)
+        print(f"CHANNEL : {channel}")
+        #print(f"MEMBERS : {channel.members.id}")
+        #print(f"IS MEMBER BOT? : {channel.members.bot}")
+        users = []
+        for user in channel.members:
+            if user.bot == False:
+                users.append(user.id)
+
+        print("we are here~")
+
+        # Add tracks based on returned recommended list
+        for video in self.recommender.recommend(users= users, K = K):
             await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
 
         global last_command

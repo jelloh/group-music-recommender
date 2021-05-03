@@ -1,5 +1,12 @@
-from scraper import Scraper
 import random
+
+import numpy as np
+import pandas as pd
+import requests
+from sentence_transformers import SentenceTransformer, util
+
+from scraper import Scraper
+
 
 class Recommender:
     def __init__(self, keywords):
@@ -11,8 +18,9 @@ class Recommender:
         self.keywords = keywords
         
         # Before beginning, get the initial list of keywords
-        self.scraper = Scraper()
-        self.searched_ids = self.scraper.search_videos(self.keywords)
+        #self.scraper = Scraper()
+        #self.searched_ids = self.scraper.search_videos(self.keywords)
+        self.update_video_list()
         
         #CHANCE = 0.5 # chance for recommending songs someone has already heard and liked
         self.flag = True # rename this eventually so it makes more sense.
@@ -40,9 +48,6 @@ class Recommender:
             print("Average without misery strategy")
             return self.average_without_misery(K, users)
     
-    def change_strategy(self, strat):
-        self.strategy = strat
-    
     # --------------------------------------
     # RECOMMENDATION STRATEGIES (Individual)
     # --------------------------------------
@@ -55,6 +60,7 @@ class Recommender:
 
         # REMINDER: change "ids" to self.searched_ids()
         # self.searched_ids() 
+        scraper = Scraper()
 
         # Step 1 - Get the data of searched videos
         if self.flag == True:
@@ -90,11 +96,13 @@ class Recommender:
         print("4. Calculating cosine similarity")
         cosine_scores = util.pytorch_cos_sim(searched_embeds, liked_embeds).numpy()
 
+        print("we made it here hehe")
         scores = []
         r = [row.rating for row in ratings.itertuples()]
+        print("and here")
         for i in range(0, len(cosine_scores)):
             index = list(cosine_scores[i]).index(max(cosine_scores[i]))
-            #print(index)
+            print("aaaaaaaand here")
             scores.append({'score':max(cosine_scores[i]) * r[index],
                            'video_id':self.df.iloc[i]['video_id']})
 
@@ -121,7 +129,7 @@ class Recommender:
         scores = []
         for u in users:
             #print(u)
-            scores.append({"user": u, "scores": strat_cos_sim_description_only(u)})
+            scores.append({"user": u, "scores": self.strat_cos_sim_description_only(u)})
 
         removed_negatives = []
         # Calculate average without misery. "misery" determined by threshold
@@ -186,8 +194,8 @@ class Recommender:
         return self.keywords
 
     def update_video_list(self):
-        self.scraper = Scraper()
-        self.searched_ids = self.scraper.search_videos(self.keywords)
+        scraper = Scraper()
+        self.searched_ids = scraper.search_videos(self.keywords)
         
     def view_youtube_list(self):
         print(self.searched_ids)
