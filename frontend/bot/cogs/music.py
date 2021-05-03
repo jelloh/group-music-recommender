@@ -579,6 +579,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         global last_command
         last_command = "keywordclear"
 
+    # TODO - figure out how to automatically play recommended songs when the queue runs out
+    # as of right now, this command is useless
     @commands.command(name="setautorecommend", aliases=["setauto", "changeauto", "changeautorecommend"])
     async def set_auto_recommender_command(self, ctx):
         if self.automatic_recs == False:
@@ -590,6 +592,21 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         global last_command
         last_command = "setautorecommend"
+
+    # TODO - error handling for this. Make sure they only put a number that works
+    @commands.command(name="setstrategy", aliases=["setstrat", "strat", "strategy"])
+    async def set_strategy(self, ctx, arg):
+        # initialize recommender if needed
+        if(self.recommender is None):
+            print("initializing recommender")
+            self.recommender = Recommender(self.keyword_list)
+
+        await ctx.send("o(*^▽^*)┛ Changed the recommender strategy.")
+
+        self.recommender.set_strategy(int(arg))
+
+        global last_command
+        last_command = "setstrategy"
 
     @commands.command(name="recommend")
     async def recommend_command(self, ctx, arg):
