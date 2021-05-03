@@ -561,8 +561,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         global last_command
         last_command = "keywordadd"
 
+    # TODO - error handling if user does not enter any args or if they enter a keyword that is not in the list
     @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk', 'removekey'])
     async def remove_keyword_command(self, ctx, arg):
+        if len(self.keyword_list) == 0:
+            raise KeywordsEmpty
+
         await ctx.send(f"(˘･_･˘) I removed your keyword: {arg}")
         self.keyword_list.remove(arg)
         
@@ -571,6 +575,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         global last_command
         last_command = "keywordremove"
 
+    @remove_keyword_command.error
+    async def remove_keyword_command_error(self, ctx, exc):
+        if isinstance(exc, KeywordsEmpty):
+            #await ctx.send("The queue is currently empty.")
+            await ctx.send("(。﹏。*) You have no keywords!")
+
     @commands.command(name="keywordclear", aliases=["clearkeywords", "clearkeys", "keyclear"])
     async def clear_keyword_command(self, ctx):
         await ctx.send("(❁´◡`❁) Clearing all keywords..")
@@ -578,6 +588,35 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         global last_command
         last_command = "keywordclear"
+
+    @commands.command(name="keywordlist", aliases=["keywordslist", "listkeywords", "listkeys", "listkey", "keylist"])
+    async def list_keyword_command(self, ctx):
+
+        if len(self.keyword_list) == 0:
+            raise KeywordsEmpty
+
+        embed = discord.Embed(
+            title="ヾ(•ω•`)o Here are your keywords!",
+            description=(
+                "\n".join(
+                    f"**{i+1}.** {self.keyword_list[i]}"
+                    for i in range(0, len(self.keyword_list))
+                )
+            ),
+            colour=ctx.author.colour,
+            timestamp=dt.datetime.utcnow()
+        )
+
+        msg = await ctx.send(embed=embed)
+
+        global last_command
+        last_command = "keywordlist"
+
+    @list_keyword_command.error
+    async def list_keyword_command_error(self, ctx, exc):
+        if isinstance(exc, KeywordsEmpty):
+            #await ctx.send("The queue is currently empty.")
+            await ctx.send("(。﹏。*) You have no keywords!")
 
     # TODO - figure out how to automatically play recommended songs when the queue runs out
     # as of right now, this command is useless
