@@ -4,7 +4,7 @@ import re
 import random
 import typing as t
 from enum import Enum
-
+import numpy as np
 import discord
 import requests
 import wavelink
@@ -276,9 +276,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         self.wavelink = wavelink.Client(bot=bot)
         self.bot.loop.create_task(self.start_nodes())
 
-        self.recommender = None
-        self.automatic_recs = False
-
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """
@@ -348,6 +345,11 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         channel = await player.connect(ctx, channel)
         #await ctx.send(f"Connected to {channel.name}.")
         await ctx.send(f"(*￣3￣)╭ Hello! I've joined {channel.name}~")
+
+        # initialize some things when the bot first connects
+        self.recommender = None
+        self.automatic_recs = False
+        self.keyword_list = []
 
         global last_command
         last_command = "connect"
@@ -672,7 +674,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         # (so we don't have to search youtube every single time)
         print(f"keyword list: {self.keyword_list}")
         print(f"recommender's keywords: {self.recommender.get_keywords()}")
-        if(set(self.keyword_list) != set(self.recommender.get_keywords())):
+        #if(set(self.keyword_list) != set(self.recommender.get_keywords())):
+        if(np.array_equal(
+            np.array(self.keyword_list).sort(),
+            np.array(self.recommender.get_keywords()).sort())):
             print("updating keywords")
             self.recommender.set_keywords(self.keyword_list)
             self.recommender.update_video_list()
