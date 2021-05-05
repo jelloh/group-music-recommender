@@ -347,9 +347,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         await ctx.send(f"(*￣3￣)╭ Hello! I've joined {channel.name}~")
 
         # initialize some things when the bot first connects
-        self.recommender = None
+        self.recommender = Recommender()
         self.automatic_recs = False
-        self.keyword_list = []
+        #self.keyword_list = []
 
         global last_command
         last_command = "connect"
@@ -552,13 +552,13 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # RECOMMENDATION
     # --------------------------------------------------------------------
 
-    keyword_list = []
+    #keyword_list = []
     @commands.command(name="keywordadd", aliases=['addkeyword','keyadd','ka','ak', 'addkey'])
     async def add_keyword_command(self, ctx, arg):
         await ctx.send(f"(‾◡◝) Adding your keyword: {arg}")
-        self.keyword_list.append(arg)
-        
-        print(self.keyword_list)
+        self.recommender.add_keyword(str(arg))
+        #self.keyword_list.append(arg)
+        #print(self.keyword_list)
 
         global last_command
         last_command = "keywordadd"
@@ -566,13 +566,14 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # TODO - error handling if user does not enter any args or if they enter a keyword that is not in the list
     @commands.command(name="keywordremove", aliases=['removekeyword','keyremove', 'kr','rk', 'removekey'])
     async def remove_keyword_command(self, ctx, arg):
-        if len(self.keyword_list) == 0:
+        if len(self.recommender.get_keywords()) == 0:
             raise KeywordsEmpty
 
         await ctx.send(f"(˘･_･˘) I removed your keyword: {arg}")
-        self.keyword_list.remove(arg)
+        #self.keyword_list.remove(arg)
+        self.recommender.remove_keyword(arg)
         
-        print(self.keyword_list)
+        #print(self.keyword_list)
 
         global last_command
         last_command = "keywordremove"
@@ -586,7 +587,8 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @commands.command(name="keywordclear", aliases=["clearkeywords", "clearkeys", "keyclear"])
     async def clear_keyword_command(self, ctx):
         await ctx.send("(❁´◡`❁) Clearing all keywords..")
-        self.keyword_list = []
+        #self.keyword_list = []
+        self.recommender.clear_keywords()
 
         global last_command
         last_command = "keywordclear"
@@ -594,15 +596,17 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @commands.command(name="keywordlist", aliases=["keywordslist", "listkeywords", "listkeys", "listkey", "keylist"])
     async def list_keyword_command(self, ctx):
 
-        if len(self.keyword_list) == 0:
+        if len(self.recommender.get_keywords()) == 0:
             raise KeywordsEmpty
+
+        keywords = self.recommender.get_keywords()
 
         embed = discord.Embed(
             title="ヾ(•ω•`)o Here are your keywords!",
             description=(
                 "\n".join(
-                    f"**{i+1}.** {self.keyword_list[i]}"
-                    for i in range(0, len(self.keyword_list))
+                    f"**{i+1}.** {keywords[i]}"
+                    for i in range(0, len(keywords))
                 )
             ),
             colour=ctx.author.colour,
@@ -637,14 +641,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     # TODO - error handling for this. Make sure they only put a number that works
     @commands.command(name="setstrategy", aliases=["setstrat", "strat", "strategy"])
     async def set_strategy(self, ctx, arg):
-        # initialize recommender if needed
-        if(self.recommender is None):
-            print("initializing recommender")
-            self.recommender = Recommender(self.keyword_list)
-
-        await ctx.send("o(*^▽^*)┛ Changed the recommender strategy.")
 
         self.recommender.set_strategy(int(arg))
+        await ctx.send("o(*^▽^*)┛ Changed the recommender strategy.")
 
         global last_command
         last_command = "setstrategy"
@@ -658,53 +657,33 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         """
 
         # Error handling for if no keywords exit
-        if(len(self.keyword_list) == 0):
+        if(len(self.recommender.get_keywords()) == 0):
             raise KeywordsEmpty
             
         await ctx.send("This might take a little bit. \nI am learning `(*>﹏<*)′ Please be patient. ❤")
 
         K = int(arg[0])
-
-        # initialize recommender 
-        if(self.recommender is None):
-            print("initializing recommender")
-            self.recommender = Recommender(self.keyword_list)
-
-        # Update video list only if keywords have changed
-        # (so we don't have to search youtube every single time)
-        print(f"keyword list: {self.keyword_list}")
-        print(f"recommender's keywords: {self.recommender.get_keywords()}")
-        #if(set(self.keyword_list) != set(self.recommender.get_keywords())):
-        if(np.array_equal(
-            np.array(self.keyword_list).sort(),
-            np.array(self.recommender.get_keywords()).sort())):
-            print("updating keywords")
-            self.recommender.set_keywords(self.keyword_list)
-            self.recommender.update_video_list()
-        
+  
         # Get player
         player = self.get_player(ctx)
 
         # Get users in the voice channel
-        # player.channel_id 
         print(f"CHANNEL ID: {player.channel_id}")
         channel = self.bot.get_channel(player.channel_id)
         print(f"CHANNEL : {channel}")
-        #print(f"MEMBERS : {channel.members.id}")
-        #print(f"IS MEMBER BOT? : {channel.members.bot}")
+
         users = []
         for user in channel.members:
             if user.bot == False:
                 users.append(user.id)
 
-        print("we are here~")
-
         try:
             # Add tracks based on returned recommended list
-            for video in self.recommender.recommend(users= users, K = K):
+            videos = self.recommender.recommend(users = users, K = K)
+            for video in videos:
                 await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
         except Exception as e:
-            print(f"ASODHFAHSDF {e}")
+            print(f"Error adding tracks: {e}")
 
         global last_command
         last_command = "recommend"

@@ -9,18 +9,20 @@ from scraper import Scraper
 
 
 class Recommender:
-    def __init__(self, keywords):
+    def __init__(self):
         """
         To start - we need to have a list of keywords.
         (At least for now, until we add other strategies)
         """
         self.strategy = 0
-        self.keywords = keywords
+        self.keywords = []
         
         # Before beginning, get the initial list of keywords
         #self.scraper = Scraper()
         #self.searched_ids = self.scraper.search_videos(self.keywords)
-        self.update_video_list()
+        #self.update_video_list()
+        self.flag_keys = True # key for if the video list is updated for the given keywords
+                              # True for yes, False if no and needs to be updated
         
         #CHANCE = 0.5 # chance for recommending songs someone has already heard and liked
         self.flag = True # rename this eventually so it makes more sense.
@@ -41,6 +43,11 @@ class Recommender:
         return:
         a list of video IDs
         """
+
+        if self.flag_keys == False:
+            self.update_video_list()
+            self.flag_keys = True
+
         if(self.strategy == 0):
             print("Random strategy!")
             return self.strat_random(K)
@@ -159,11 +166,20 @@ class Recommender:
             if negatives == False:
                 average = average/num_users
                 if(average < 0.999): # dont include those with 1, meaning everyone has already heard it
-                    #print(average)
                     removed_negatives.append({"score" : average, "video_id": self.searched_ids[video_index]})
 
-        # return URLs from top K recommended songs
-        return [self.convert_to_url(i) for i in pd.DataFrame(removed_negatives).nlargest(K, columns=['score'])['video_id']]
+        urls = []
+
+        try:
+            vids = pd.DataFrame(removed_negatives).nlargest(int(K), columns=['score'])['video_id']
+
+            for vid in vids:
+                urls.append(self.convert_to_url(vid))
+
+        except Exception as e:
+            print(f"Error finding top-K songs: {e}")
+
+        return urls
     
     def strat_random(self, K):
         recommended = []
@@ -187,10 +203,25 @@ class Recommender:
     def set_strategy(self, num):
         self.strategy = num
     
-    def set_keywords(self, keys):
-        self.keywords = keys
-        self.flag = True # set to true since keywords change
+    # def set_keywords(self, keys):
+    #     self.keywords = keys
+    #     self.flag = True # set to true since keywords change
+
+    def add_keyword(self, key):
+        self.keywords.append(key)
+        self.flag_keys = False
+        self.flag = True 
         
+    def remove_keyword(self, key):
+        self.keywords.remove(key)
+        self.flag_keys = False
+        self.flag = True 
+
+    def clear_keywords(self):
+        self.keywords = []
+        self.flag_keys = False
+        self.flag = True 
+
     def view_keywords(self):
         print(self.keywords)
 
