@@ -33,7 +33,7 @@ class Recommender:
         self.searched_embeds = None # embeddings generated from searched songs
             # --------------------------------------    
     
-    def recommend(self, users = None, K = 1):
+    async def recommend(self, users = None, K = 1):
         """
         params:
         users = list of users (discord user id). 
@@ -50,15 +50,15 @@ class Recommender:
 
         if(self.strategy == 0):
             print("Random strategy!")
-            return self.strat_random(K)
+            return await self.strat_random(K)
         elif(self.strategy == 1):
             print("Average without misery strategy")
-            return self.average_without_misery(K, users)
+            return await self.average_without_misery(K, users)
     
     # --------------------------------------
     # RECOMMENDATION STRATEGIES (Individual)
     # --------------------------------------
-    def strat_cos_sim_description_only(self, user_id):
+    async def strat_cos_sim_description_only(self, user_id):
         """
         Input - user_id: The id of a given user.
         Output - A list of videos and their cosine score.
@@ -115,7 +115,7 @@ class Recommender:
                 scores.append({'score':max(cosine_scores[i]) * r[index],
                             'video_id':self.df.iloc[i]['video_id']})
         except Exception as e:
-            print(f"poopy {e}")
+            print(f"Error in generating cosine scores: {e}")
 
         #print(scores.head())
         # return [convert_to_url(i) for i in scores.nlargest(K, ['score'])['video_id']]
@@ -125,7 +125,7 @@ class Recommender:
     # --------------------------------------
     # RECOMMENDATION STRATEGIES (Group)
     # --------------------------------------
-    def average_without_misery(self, K, users, threshold = 0):
+    async def average_without_misery(self, K, users, threshold = 0):
         """
         Input - 
             K: Number of recommendations (top-k) to return
@@ -140,7 +140,7 @@ class Recommender:
         scores = []
         for u in users:
             #print(u)
-            scores.append({"user": u, "scores": self.strat_cos_sim_description_only(u)})
+            scores.append({"user": u, "scores": await self.strat_cos_sim_description_only(u)})
 
         removed_negatives = []
         # Calculate average without misery. "misery" determined by threshold
@@ -174,14 +174,14 @@ class Recommender:
             vids = pd.DataFrame(removed_negatives).nlargest(int(K), columns=['score'])['video_id']
 
             for vid in vids:
-                urls.append(self.convert_to_url(vid))
+                urls.append(await self.convert_to_url(vid))
 
         except Exception as e:
             print(f"Error finding top-K songs: {e}")
 
         return urls
     
-    def strat_random(self, K):
+    async def strat_random(self, K):
         recommended = []
         
         for i in range(0, K):
@@ -193,7 +193,7 @@ class Recommender:
             while self.searched_ids[num] in recommended:
                 num = random.randint(0,len(self.searched_ids))
             
-            recommended.append(self.convert_to_url(self.searched_ids[num]))
+            recommended.append(await self.convert_to_url(self.searched_ids[num]))
             
         return recommended
     # --------------------------------------
@@ -235,7 +235,7 @@ class Recommender:
     def view_youtube_list(self):
         print(self.searched_ids)
         
-    def convert_to_url(self, y_id):
+    async def convert_to_url(self, y_id):
         # https://www.youtube.com/watch?v=q3J0H5SAhJY
         return f"https://www.youtube.com/watch?v={y_id}"
         

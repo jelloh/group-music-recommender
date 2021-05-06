@@ -298,7 +298,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         else:
             await payload.player.advance()
 
-
     async def cog_check(self, ctx):
         """
         Automatically applied to all commands. Disallow commands sent from DM.
@@ -545,7 +544,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @queue_command.error
     async def queue_command_error(self, ctx, exc):
         if isinstance(exc, QueueIsEmpty):
-            #await ctx.send("The queue is currently empty.")
             await ctx.send("(。﹏。*) Your queue is empty..")
 
     # --------------------------------------------------------------------
@@ -557,8 +555,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def add_keyword_command(self, ctx, arg):
         await ctx.send(f"(‾◡◝) Adding your keyword: {arg}")
         self.recommender.add_keyword(str(arg))
-        #self.keyword_list.append(arg)
-        #print(self.keyword_list)
 
         global last_command
         last_command = "keywordadd"
@@ -570,10 +566,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             raise KeywordsEmpty
 
         await ctx.send(f"(˘･_･˘) I removed your keyword: {arg}")
-        #self.keyword_list.remove(arg)
         self.recommender.remove_keyword(arg)
-        
-        #print(self.keyword_list)
 
         global last_command
         last_command = "keywordremove"
@@ -581,13 +574,11 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @remove_keyword_command.error
     async def remove_keyword_command_error(self, ctx, exc):
         if isinstance(exc, KeywordsEmpty):
-            #await ctx.send("The queue is currently empty.")
             await ctx.send("(。﹏。*) You have no keywords!")
 
     @commands.command(name="keywordclear", aliases=["clearkeywords", "clearkeys", "keyclear"])
     async def clear_keyword_command(self, ctx):
         await ctx.send("(❁´◡`❁) Clearing all keywords..")
-        #self.keyword_list = []
         self.recommender.clear_keywords()
 
         global last_command
@@ -621,7 +612,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @list_keyword_command.error
     async def list_keyword_command_error(self, ctx, exc):
         if isinstance(exc, KeywordsEmpty):
-            #await ctx.send("The queue is currently empty.")
             await ctx.send("(。﹏。*) You have no keywords!")
 
     # TODO - figure out how to automatically play recommended songs when the queue runs out
@@ -660,7 +650,19 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
         if(len(self.recommender.get_keywords()) == 0):
             raise KeywordsEmpty
             
-        await ctx.send("This might take a little bit. \nI am learning `(*>﹏<*)′ Please be patient. ❤")
+        #msg1 = await ctx.send("`(*>﹏<*)′ This might take a little bit. \nI am learning. Please be patient. ❤")
+
+        embed = discord.Embed(
+            title = "Recommending music~",
+            description = "`(*>﹏<*)′ This might take a little bit. \nI am learning. Please be patient. ❤"
+        )
+        embed.set_image(url="https://media1.tenor.com/images/748a0f8750594d4fcaa3149c5cfef98d/tenor.gif?itemid=17661630")
+        embed.set_footer(text="Please don't touch anything while I'm searching. I might break. ヾ(￣▽￣) ..")
+
+        try:
+            msg = await ctx.send(embed=embed)
+        except Exception as e:
+            print(e)
 
         K = int(arg[0])
   
@@ -679,9 +681,16 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         try:
             # Add tracks based on returned recommended list
-            videos = self.recommender.recommend(users = users, K = K)
+            videos = await self.recommender.recommend(users = users, K = K)
+            #await msg1.delete()
+            await msg.delete()
+            await ctx.send("ヾ(•ω•`)o Found some songs for you!")
+
+
             for video in videos:
                 await player.add_tracks(ctx, await self.wavelink.get_tracks(video))
+
+                
         except Exception as e:
             print(f"Error adding tracks: {e}")
 
