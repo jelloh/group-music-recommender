@@ -6,11 +6,11 @@ Download git from [here](https://git-scm.com/downloads) if you don't have it alr
 
 1. git clone this repository: `git clone https://github.com/jelloh/group-music-recommender.git`
 2. enter your project directory (if not already): `cd group-music-recommender`  
-3. set up an environment: `python3 -m venv name_of_your_environment`
+3. set up an environment: `python -m venv name_of_your_environment`
 4. enter your environment: (in Windows) `name_of_your_venv\Scripts\activate.bat`
 5. install dependencies: `pip install -r requirements.txt`
 
-A guide on Python environments [here](https://thecodingpie.com/post/a-quick-guide-on-how-to-setup-a-python-virtual-environment-windows-linux-mac#:~:text=%20A%20Quick%20Guide%20on%20How%20to%20Setup,Step%202%3A%20Activating%20your%20virtual%20environment%20More%20).
+A guide on Python environments [here](https://docs.python.org/3/library/venv.html#:~:text=A%20virtual%20environment%20is%20a%20directory%20tree%20which,and%20pip%20work%20as%20expected%20with%20virtual%20environments.).
   
   
 # Backend 
