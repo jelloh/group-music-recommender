@@ -4,10 +4,11 @@ Term project for ITIS 6410/8410
 ## Setup Python environment for both the frontend and backend  
 Download git from [here](https://git-scm.com/downloads) if you don't have it already. Then:  
 
-1. git clone this repository: `git clone https://github.com/jelloh/group-music-recommender.git`  
-2. set up an environment: `python3 -m venv name_of_your_environment`
-3. enter your environment: (in Windows) `name_of_your_venv\Scripts\activate.bat`
-4. install dependencies: `pip install -r requirements.txt`
+1. git clone this repository: `git clone https://github.com/jelloh/group-music-recommender.git`
+2. enter your project directory (if not already): `cd group-music-recommender`  
+3. set up an environment: `python3 -m venv name_of_your_environment`
+4. enter your environment: (in Windows) `name_of_your_venv\Scripts\activate.bat`
+5. install dependencies: `pip install -r requirements.txt`
 
 A guide on Python environments [here](https://thecodingpie.com/post/a-quick-guide-on-how-to-setup-a-python-virtual-environment-windows-linux-mac#:~:text=%20A%20Quick%20Guide%20on%20How%20to%20Setup,Step%202%3A%20Activating%20your%20virtual%20environment%20More%20).
   
